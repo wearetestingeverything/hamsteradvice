@@ -3,14 +3,13 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Hamster Care Companion</title>
+    <title>Hamster Care Companion V2</title>
     <link href="https://fonts.googleapis.com/css2?family=Quicksand:wght@400;600&display=swap" rel="stylesheet">
     <style>
         :root {
             --primary-pink: #ffdae9;
             --dark-pink: #ff85a2;
             --soft-yellow: #fff5ba;
-            --hamster-brown: #d7a86e;
             --text-color: #5a4a42;
         }
  
@@ -25,49 +24,26 @@
  
         .container {
             background: white;
-            max-width: 500px;
+            max-width: 550px;
             width: 100%;
             padding: 30px;
             border-radius: 30px;
             box-shadow: 0 10px 25px rgba(0,0,0,0.1);
-            border: 5px solid white;
         }
  
-        h1 {
-            text-align: center;
-            color: var(--dark-pink);
-            font-size: 2rem;
-        }
+        h1 { text-align: center; color: var(--dark-pink); }
+        .hamster-icon { font-size: 50px; text-align: center; display: block; }
  
-        .hamster-icon {
-            font-size: 50px;
-            text-align: center;
-            display: block;
-            margin-bottom: 10px;
-        }
- 
-        .form-group {
-            margin-bottom: 20px;
-        }
- 
-        label {
-            display: block;
-            margin-bottom: 8px;
-            font-weight: 600;
-        }
- 
+        .form-row { display: flex; gap: 10px; margin-bottom: 15px; }
+        .form-group { flex: 1; margin-bottom: 15px; }
+        
+        label { display: block; margin-bottom: 5px; font-weight: 600; font-size: 0.9rem; }
         input, select {
             width: 100%;
-            padding: 12px;
+            padding: 10px;
             border: 2px solid var(--primary-pink);
-            border-radius: 15px;
-            font-size: 1rem;
-            outline: none;
+            border-radius: 12px;
             box-sizing: border-box;
-        }
- 
-        input:focus {
-            border-color: var(--dark-pink);
         }
  
         button {
@@ -80,118 +56,100 @@
             font-size: 1.1rem;
             font-weight: 600;
             cursor: pointer;
-            transition: transform 0.2s;
-        }
- 
-        button:hover {
-            transform: scale(1.02);
-            background-color: #ff6b8e;
+            margin-top: 10px;
         }
  
         #results {
-            margin-top: 30px;
+            margin-top: 25px;
             padding: 20px;
             border-radius: 20px;
             background-color: var(--soft-yellow);
             display: none;
         }
  
-        .result-section {
-            margin-bottom: 15px;
-            border-bottom: 1px dashed var(--dark-pink);
-            padding-bottom: 10px;
-        }
- 
-        .result-section:last-child {
-            border-bottom: none;
-        }
- 
-        h3 {
-            margin-top: 0;
-            color: #b58900;
-        }
+        .warning { color: #d93025; font-weight: bold; }
+        .success { color: #188038; font-weight: bold; }
     </style>
 </head>
 <body>
  
 <div class="container">
     <span class="hamster-icon">🐹</span>
-    <h1>Hamster Helper</h1>
+    <h1>Hamster Helper V2</h1>
     
     <div class="form-group">
         <label for="species">Dwarf Species</label>
         <select id="species">
-            <option value="winter_white">Winter White / Campbell's</option>
+            <option value="hybrid">Hybrid / Winter White / Campbell's</option>
             <option value="roborovski">Roborovski</option>
             <option value="chinese">Chinese Dwarf</option>
         </select>
     </div>
  
     <div class="form-group">
-        <label for="age">Hamster Age (in months)</label>
-        <input type="number" id="age" min="1" max="48" placeholder="e.g. 6">
+        <label for="age">Age (Months)</label>
+        <input type="number" id="age" min="1" placeholder="e.g. 8">
     </div>
  
-    <div class="form-group">
-        <label for="enclosure">Enclosure Size (sq inches)</label>
-        <input type="number" id="enclosure" placeholder="e.g. 450">
-        <small>Note: Minimum is 450 sq in (US) / 5000 sq cm (EU)</small>
+    <label>Enclosure Dimensions (cm)</label>
+    <div class="form-row">
+        <input type="number" id="length" placeholder="Length">
+        <input type="number" id="width" placeholder="Width">
+        <input type="number" id="height" placeholder="Height">
     </div>
  
-    <button onclick="checkCare()">Check My Care! ✨</button>
+    <button onclick="calculateCare()">Evaluate Care! ✨</button>
  
     <div id="results">
-        <h3>Care Report</h3>
-        <div id="housingFeedback" class="result-section"></div>
-        <div id="dietFeedback" class="result-section"></div>
-        <div id="ageFeedback" class="result-section"></div>
-        <p style="font-size: 0.8rem; margin-top: 10px;"><i>Source: Guidelines based on TVT-Germany and Hamster Society standards.</i></p>
+        <div id="areaDisplay" style="font-weight: bold; font-size: 1.1rem; margin-bottom: 15px;"></div>
+        <div id="housingFeedback"></div>
+        <hr>
+        <div id="dietFeedback"></div>
     </div>
 </div>
  
 <script>
-    function checkCare() {
+    function calculateCare() {
+        const length = parseFloat(document.getElementById('length').value);
+        const width = parseFloat(document.getElementById('width').value);
+        const height = parseFloat(document.getElementById('height').value);
         const species = document.getElementById('species').value;
-        const age = parseInt(document.getElementById('age').value);
-        const enclosure = parseInt(document.getElementById('enclosure').value);
-        const resultsDiv = document.getElementById('results');
+        const area = length * width;
  
-        if (!age || !enclosure) {
-            alert("Please fill in all fields!");
+        if (!length || !width || !height) {
+            alert("Please enter all dimensions!");
             return;
         }
  
-        // 1. Housing Logic
-        let housingText = "";
-        if (enclosure < 450) {
-            housingText = "❌ <b>Housing:</b> Your enclosure is too small. Hamsters need room to run. Aim for at least 450-600 sq inches of floor space.";
+        const resDiv = document.getElementById('results');
+        const areaDisp = document.getElementById('areaDisplay');
+        const houseFeed = document.getElementById('housingFeedback');
+        const dietFeed = document.getElementById('dietFeedback');
+ 
+        areaDisp.innerText = `Total Floor Area: ${area.toLocaleString()} cm²`;
+ 
+        // Housing Logic (Standard: 5,000 cm²)
+        if (area < 5000) {
+            houseFeed.innerHTML = `<span class="warning">⚠️ Too Small!</span> Your enclosure is below the 5,000 cm² minimum. Small cages cause stress and bar-biting.`;
         } else {
-            housingText = "✅ <b>Housing:</b> Great size! Ensure you have at least 6-10 inches of bedding for burrowing.";
+            houseFeed.innerHTML = `<span class="success">✅ Good Size!</span> Your enclosure meets artgerecht standards. Ensure at least 20cm of bedding for burrowing.`;
         }
  
-        // 2. Diet Logic
-        let dietText = "🥗 <b>Diet:</b> ";
-        if (species === 'winter_white' || species === 'chinese') {
-            dietText += "These species are prone to diabetes. Avoid fruit, corn, and sugary treats. Stick to high-quality seeds and dried herbs.";
-        } else {
-            dietText += "Roborovskis need a high-protein seed mix with plenty of small seeds like millets.";
+        // Height check for bedding
+        if (height < 50) {
+            houseFeed.innerHTML += `<br><i>Note: A height of 50cm+ is recommended to fit deep bedding and a large wheel.</i>`;
         }
  
-        // 3. Age Logic
-        let ageText = "🎂 <b>Life Stage:</b> ";
-        if (age < 3) {
-            ageText += "Your hamster is a pup! Ensure high protein (approx 18%) for growth.";
-        } else if (age > 18) {
-            ageText += "Senior Hamster! Monitor for weight loss or cataracts. Consider softening hard pellets with water if they have dental issues.";
-        } else {
-            ageText += "Healthy adult. Keep them active with scatter feeding!";
-        }
- 
-        document.getElementById('housingFeedback').innerHTML = housingText;
-        document.getElementById('dietFeedback').innerHTML = dietText;
-        document.getElementById('ageFeedback').innerHTML = ageText;
- 
-        resultsDiv.style.display = 'block';
+        // Diet Logic
+        let diet = "<b>Nutrition Tips:</b><ul>";
+        diet += "<li><b>NO sugar/fruit:</b> Dwarf hamsters are highly diabetes-prone. Avoid fruit, corn, and honey.</li>";
+        diet += "<li><b>Protein:</b> They need insects like dried mealworms or crickets (1-2 times a week).</li>";
+        diet += "<li><b>Fresh Food:</b> Stick to green vegetables (cucumber, zucchini, broccoli). No carrots or bell peppers (too much sugar).</li>";
+        diet += "<li><b>Water:</b> Use a small ceramic bowl instead of a bottle to prevent neck strain.</li>";
+        diet += "</ul>";
+        
+        dietFeed.innerHTML = diet;
+        resDiv.style.display = 'block';
     }
 </script>
  
