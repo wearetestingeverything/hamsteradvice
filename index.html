@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hamster Care Companion</title>
+    <link href="https://fonts.googleapis.com/css2?family=Quicksand:wght@400;600&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary-pink: #ffdae9;
+            --dark-pink: #ff85a2;
+            --soft-yellow: #fff5ba;
+            --hamster-brown: #d7a86e;
+            --text-color: #5a4a42;
+        }
+ 
+        body {
+            font-family: 'Quicksand', sans-serif;
+            background-color: var(--primary-pink);
+            color: var(--text-color);
+            display: flex;
+            justify-content: center;
+            padding: 20px;
+        }
+ 
+        .container {
+            background: white;
+            max-width: 500px;
+            width: 100%;
+            padding: 30px;
+            border-radius: 30px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+            border: 5px solid white;
+        }
+ 
+        h1 {
+            text-align: center;
+            color: var(--dark-pink);
+            font-size: 2rem;
+        }
+ 
+        .hamster-icon {
+            font-size: 50px;
+            text-align: center;
+            display: block;
+            margin-bottom: 10px;
+        }
+ 
+        .form-group {
+            margin-bottom: 20px;
+        }
+ 
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+        }
+ 
+        input, select {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid var(--primary-pink);
+            border-radius: 15px;
+            font-size: 1rem;
+            outline: none;
+            box-sizing: border-box;
+        }
+ 
+        input:focus {
+            border-color: var(--dark-pink);
+        }
+ 
+        button {
+            width: 100%;
+            background-color: var(--dark-pink);
+            color: white;
+            border: none;
+            padding: 15px;
+            border-radius: 15px;
+            font-size: 1.1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: transform 0.2s;
+        }
+ 
+        button:hover {
+            transform: scale(1.02);
+            background-color: #ff6b8e;
+        }
+ 
+        #results {
+            margin-top: 30px;
+            padding: 20px;
+            border-radius: 20px;
+            background-color: var(--soft-yellow);
+            display: none;
+        }
+ 
+        .result-section {
+            margin-bottom: 15px;
+            border-bottom: 1px dashed var(--dark-pink);
+            padding-bottom: 10px;
+        }
+ 
+        .result-section:last-child {
+            border-bottom: none;
+        }
+ 
+        h3 {
+            margin-top: 0;
+            color: #b58900;
+        }
+    </style>
+</head>
+<body>
+ 
+<div class="container">
+    <span class="hamster-icon">🐹</span>
+    <h1>Hamster Helper</h1>
+    
+    <div class="form-group">
+        <label for="species">Dwarf Species</label>
+        <select id="species">
+            <option value="winter_white">Winter White / Campbell's</option>
+            <option value="roborovski">Roborovski</option>
+            <option value="chinese">Chinese Dwarf</option>
+        </select>
+    </div>
+ 
+    <div class="form-group">
+        <label for="age">Hamster Age (in months)</label>
+        <input type="number" id="age" min="1" max="48" placeholder="e.g. 6">
+    </div>
+ 
+    <div class="form-group">
+        <label for="enclosure">Enclosure Size (sq inches)</label>
+        <input type="number" id="enclosure" placeholder="e.g. 450">
+        <small>Note: Minimum is 450 sq in (US) / 5000 sq cm (EU)</small>
+    </div>
+ 
+    <button onclick="checkCare()">Check My Care! ✨</button>
+ 
+    <div id="results">
+        <h3>Care Report</h3>
+        <div id="housingFeedback" class="result-section"></div>
+        <div id="dietFeedback" class="result-section"></div>
+        <div id="ageFeedback" class="result-section"></div>
+        <p style="font-size: 0.8rem; margin-top: 10px;"><i>Source: Guidelines based on TVT-Germany and Hamster Society standards.</i></p>
+    </div>
+</div>
+ 
+<script>
+    function checkCare() {
+        const species = document.getElementById('species').value;
+        const age = parseInt(document.getElementById('age').value);
+        const enclosure = parseInt(document.getElementById('enclosure').value);
+        const resultsDiv = document.getElementById('results');
+ 
+        if (!age || !enclosure) {
+            alert("Please fill in all fields!");
+            return;
+        }
+ 
+        // 1. Housing Logic
+        let housingText = "";
+        if (enclosure < 450) {
+            housingText = "❌ <b>Housing:</b> Your enclosure is too small. Hamsters need room to run. Aim for at least 450-600 sq inches of floor space.";
+        } else {
+            housingText = "✅ <b>Housing:</b> Great size! Ensure you have at least 6-10 inches of bedding for burrowing.";
+        }
+ 
+        // 2. Diet Logic
+        let dietText = "🥗 <b>Diet:</b> ";
+        if (species === 'winter_white' || species === 'chinese') {
+            dietText += "These species are prone to diabetes. Avoid fruit, corn, and sugary treats. Stick to high-quality seeds and dried herbs.";
+        } else {
+            dietText += "Roborovskis need a high-protein seed mix with plenty of small seeds like millets.";
+        }
+ 
+        // 3. Age Logic
+        let ageText = "🎂 <b>Life Stage:</b> ";
+        if (age < 3) {
+            ageText += "Your hamster is a pup! Ensure high protein (approx 18%) for growth.";
+        } else if (age > 18) {
+            ageText += "Senior Hamster! Monitor for weight loss or cataracts. Consider softening hard pellets with water if they have dental issues.";
+        } else {
+            ageText += "Healthy adult. Keep them active with scatter feeding!";
+        }
+ 
+        document.getElementById('housingFeedback').innerHTML = housingText;
+        document.getElementById('dietFeedback').innerHTML = dietText;
+        document.getElementById('ageFeedback').innerHTML = ageText;
+ 
+        resultsDiv.style.display = 'block';
+    }
+</script>
+ 
+</body>
+</html>
